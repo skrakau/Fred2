@@ -19,6 +19,7 @@ from mhcflurry import Class1AffinityPredictor
 from mhcnuggets.src.predict import predict as mhcnuggets_predict
 from Fred2.Core import EpitopePredictionResult
 from Fred2.Core.Base import AEpitopePrediction
+from Fred2.Core.Allele import Allele, CombinedAllele, MouseAllele
 
 import inspect
 
@@ -79,28 +80,25 @@ try:
             Victor E. Velculescu, Rachel Karchin (2017) bioRxiv
         """
         __metaclass__ = SignatureCheckerMeta
-        __alleles = frozenset(
-            ["HLA-A*01:01", "HLA-A*02:01", "HLA-A*02:02", "HLA-A*02:03", "HLA-A*02:04", "HLA-A*02:05", "HLA-A*02:06",
-             "HLA-A*02:07", "HLA-A*02:08", "HLA-A*02:09", "HLA-A*02:10", "HLA-A*02:11", "HLA-A*02:12", "HLA-A*02:14",
-             "HLA-A*02:16", "HLA-A*02:17", "HLA-A*02:19", "HLA-A*02:50", "HLA-A*03:01", "HLA-A*03:02", "HLA-A*03:19",
-             "HLA-A*11:01", "HLA-A*11:02", "HLA-A*23:01", "HLA-A*24:01", "HLA-A*24:02", "HLA-A*24:03", "HLA-A*25:01",
-             "HLA-A*26:01", "HLA-A*26:02", "HLA-A*26:03", "HLA-A*29:01", "HLA-A*29:02", "HLA-A*30:01", "HLA-A*30:02",
-             "HLA-A*30:03", "HLA-A*30:04", "HLA-A*31:01", "HLA-A*32:01", "HLA-A*32:07", "HLA-A*32:15", "HLA-A*33:01",
-             "HLA-A*33:03", "HLA-A*66:01", "HLA-A*68:01", "HLA-A*68:02", "HLA-A*68:23", "HLA-A*69:01", "HLA-A*74:01",
-             "HLA-A*80:01", "HLA-B*07:01", "HLA-B*07:02", "HLA-B*08:01", "HLA-B*08:02", "HLA-B*08:03", "HLA-B*12:01",
-             "HLA-B*13:02", "HLA-B*14:01", "HLA-B*14:02", "HLA-B*15:01", "HLA-B*15:02", "HLA-B*15:03", "HLA-B*15:08",
-             "HLA-B*15:09", "HLA-B*15:10", "HLA-B*15:13", "HLA-B*15:16", "HLA-B*15:17", "HLA-B*15:42", "HLA-B*18:01",
-             "HLA-B*27:01", "HLA-B*27:02", "HLA-B*27:03", "HLA-B*27:04", "HLA-B*27:05", "HLA-B*27:06", "HLA-B*27:09",
-             "HLA-B*27:10", "HLA-B*27:20", "HLA-B*35:01", "HLA-B*35:02", "HLA-B*35:03", "HLA-B*35:08", "HLA-B*37:01",
-             "HLA-B*38:01", "HLA-B*39:01", "HLA-B*39:06", "HLA-B*39:09", "HLA-B*39:10", "HLA-B*40:01", "HLA-B*40:02",
-             "HLA-B*40:13", "HLA-B*41:03", "HLA-B*41:04", "HLA-B*42:01", "HLA-B*42:02", "HLA-B*44:01", "HLA-B*44:02",
-             "HLA-B*44:03", "HLA-B*44:05", "HLA-B*45:01", "HLA-B*45:06", "HLA-B*46:01", "HLA-B*48:01", "HLA-B*51:01",
-             "HLA-B*51:02", "HLA-B*52:01", "HLA-B*53:01", "HLA-B*54:01", "HLA-B*55:01", "HLA-B*55:02", "HLA-B*56:01",
-             "HLA-B*57:01", "HLA-B*57:02", "HLA-B*57:03", "HLA-B*58:01", "HLA-B*58:02", "HLA-B*60:01", "HLA-B*61:01",
-             "HLA-B*62:01", "HLA-B*73:01", "HLA-B*81:01", "HLA-B*83:01"])
+        __alleles = frozenset(["HLA-A*01:01", "HLA-A*02:01", "HLA-A*02:02", "HLA-A*02:03", "HLA-A*02:05", "HLA-A*02:06", "HLA-A*02:07",
+                               "HLA-A*02:11", "HLA-A*02:12", "HLA-A*02:16", "HLA-A*02:17", "HLA-A*02:19", "HLA-A*02:50", "HLA-A*03:01",
+                               "HLA-A*03:19", "HLA-A*11:01", "HLA-A*23:01", "HLA-A*24:01", "HLA-A*24:02", "HLA-A*24:03", "HLA-A*25:01",
+                               "HLA-A*26:01", "HLA-A*26:02", "HLA-A*26:03", "HLA-A*29:02", "HLA-A*30:01", "HLA-A*30:02", "HLA-A*31:01",
+                               "HLA-A*32:01", "HLA-A*32:07", "HLA-A*32:15", "HLA-A*33:01", "HLA-A*66:01", "HLA-A*68:01", "HLA-A*68:02",
+                               "HLA-A*68:23", "HLA-A*69:01", "HLA-A*80:01", "HLA-B*07:01", "HLA-B*07:02", "HLA-B*08:01", "HLA-B*08:02",
+                               "HLA-B*08:03", "HLA-B*14:01", "HLA-B*14:02", "HLA-B*15:01", "HLA-B*15:02", "HLA-B*15:03", "HLA-B*15:09",
+                               "HLA-B*15:16", "HLA-B*15:17", "HLA-B*15:42", "HLA-B*18:01", "HLA-B*27:01", "HLA-B*27:02", "HLA-B*27:03",
+                               "HLA-B*27:04", "HLA-B*27:05", "HLA-B*27:06", "HLA-B*27:09", "HLA-B*27:20", "HLA-B*35:01", "HLA-B*35:03",
+                               "HLA-B*35:08", "HLA-B*37:01", "HLA-B*38:01", "HLA-B*39:01", "HLA-B*39:06", "HLA-B*40:01", "HLA-B*40:02",
+                               "HLA-B*40:13", "HLA-B*42:01", "HLA-B*44:01", "HLA-B*44:02", "HLA-B*44:03", "HLA-B*45:01", "HLA-B*45:06",
+                               "HLA-B*46:01", "HLA-B*48:01", "HLA-B*51:01", "HLA-B*53:01", "HLA-B*54:01", "HLA-B*57:01", "HLA-B*57:03",
+                               "HLA-B*58:01", "HLA-B*58:02", "HLA-B*62:01", "HLA-B*73:01", "HLA-B*81:01", "HLA-B*83:01", "HLA-BF*02:0401",
+                               "HLA-BF*02:2101", "HLA-C*03:03", "HLA-C*03:04", "HLA-C*04:01", "HLA-C*05:01", "HLA-C*06:02", "HLA-C*07:01",
+                               "HLA-C*07:02", "HLA-C*08:01", "HLA-C*08:02", "HLA-C*12:03", "HLA-C*14:02", "HLA-C*15:02", "HLA-E*01:03",
+                               "HLA-RT*01:01", "H-2-Db", "H-2-Dd", "H-2-Kb", "H-2-Kd", "H-2-Kk", "H-2-Ld"])
         __supported_length = frozenset([5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22])
         __name = "mhcnuggets-class-1"
-        __version = "2.0"
+        __version = "2.3.2"
 
         # the interface defines three class properties
         @property
@@ -123,14 +121,38 @@ try:
             # returns the version of the predictor
             return self.__version
 
+        def _represent(self, allele):
+            """
+            Internal function transforming an allele object into its representative string
+            :param allele: The :class:`~Fred2.Core.Allele.Allele` for which the internal predictor representation is
+                            needed
+            :type alleles: :class:`~Fred2.Core.Allele.Allele`
+            :return: str
+            """
+            if isinstance(allele, MouseAllele):
+                return "H-2-%s%s%s" % (allele.locus, allele.supertype, allele.subtype)
+            else:
+                return "HLA-%s%s:%s" % (allele.locus, allele.supertype, allele.subtype)
+
         # Converts FRED2s internal allele representation into the format required by mhcnuggets
         def convert_alleles(self, alleles):
-            return ['HLA-' + allele.name.replace('*', '') for allele in alleles]
+            """
+            Converts :class:`~Fred2.Core.Allele.Allele` into the internal :class:`~Fred2.Core.Allele.Allele` representation
+            of the predictor and returns a string representation
 
-        # Converts the internal mhcnuggets-class-1 representation back into a FRED2 representation
+            :param alleles: The :class:`~Fred2.Core.Allele.Allele` for which the internal predictor representation is
+                            needed
+            :type alleles: :class:`~Fred2.Core.Allele.Allele`
+            :return: Returns a string representation of the input :class:`~Fred2.Core.Allele.Allele`
+            :rtype: list(str)
+            """
+            return [self._represent(a) for a in alleles]
+
+        # Converts the internal mhcnuggets-class-1 HLA representation back into a FRED2 representation
         def revert_allele_repr(self, allele):
-            allele = allele.replace('HLA-', '')
-            allele = allele[:1] + '*' + allele[1:]
+            if allele.startswith("HLA-"):  
+                allele = allele.replace('HLA-', '')
+                allele = allele[:1] + '*' + allele[1:]
             return allele 
 
         # predicts the binding affinity for a set of peptides and alleles
